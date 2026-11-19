@@ -6,6 +6,14 @@ comparing it with published estimates for cloud chatbots.
 Part of the course *VU Tools in Data Science* (Green AI topic). Code and notes
 were written with help from AI (Claude); all measurements were run by me.
 
+## What's in this repo
+
+- `measure.py` — the measurement script (detects the installed Ollama model,
+  runs the question, computes energy and CO₂).
+- `measurements.json` — the numbers it saved on my laptop.
+- `calculator.html` — a standalone slider calculator (open it in any browser).
+- `slides.pdf` — the slide deck.
+
 ## The question
 
 How much energy and CO₂ does a single answer from a language model cost? I

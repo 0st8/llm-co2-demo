@@ -1,0 +1,142 @@
+<title>CO2 Chat Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: single focused calculator — controls left, big results right */
+:root {
+  --bg: #f3f6f7; --surface: #ffffff; --fg: #10202a; --muted: #55646f;
+  --line: #d9e1e5; --teal: #0b6e5f; --teal-lt: #3cc4ae; --amber: #9a5200;
+  --font-head: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e171d; --surface: #162229; --fg: #e5edf1; --muted: #98a9b3;
+    --line: #2a3a44; --teal: #3dc5ae; --teal-lt: #3cc4ae; --amber: #e2a23a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e171d; --surface: #162229; --fg: #e5edf1; --muted: #98a9b3;
+  --line: #2a3a44; --teal: #3dc5ae; --teal-lt: #3cc4ae; --amber: #e2a23a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 17px; line-height: 1.5;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--font-head); font-size: clamp(26px, 5vw, 38px); font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+.eyebrow { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); font-weight: 600; }
+.lead { color: var(--muted); font-size: 15px; margin: 0; }
+.calc { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+@media (max-width: 680px) { .calc { grid-template-columns: 1fr; gap: 26px; } }
+.controls { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.ctl label { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 500; }
+.ctl label output { font-family: var(--font-num); color: var(--teal); }
+.ctl input[type=range] { width: 100%; accent-color: var(--teal); margin: 8px 0 0; }
+.ctl small { color: var(--muted); font-size: 12.5px; }
+.presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+button.preset { font: inherit; font-size: 13px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+button.preset:focus-visible, input:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.results { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.res { border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.res:last-child { border-bottom: 0; }
+.res .k { font-size: 14px; color: var(--muted); }
+.res .v { font-family: var(--font-num); font-size: clamp(26px, 6vw, 36px); font-weight: 500; font-variant-numeric: tabular-nums; }
+.res .v small { font-size: 15px; color: var(--muted); font-family: var(--font-body); }
+.res.main .v { color: var(--teal); }
+.note { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--amber); border-radius: 8px; padding: 14px 16px; font-size: 14px; color: var(--muted); }
+.note b { color: var(--fg); }
+</style>
+
+<main>
+  <header>
+    <p class="eyebrow">Green AI · live calculator</p>
+    <h1>CO₂ of one AI answer</h1>
+    <p class="lead">Energy = power × time. CO₂ = energy × grid intensity. Move the sliders.</p>
+  </header>
+
+  <div class="calc">
+    <div class="controls">
+      <div class="ctl">
+        <label for="pw">Power while answering <output id="pwO"></output></label>
+        <input id="pw" type="range" min="5" max="300" step="1" value="30">
+        <small>Assumed, not measured. A laptop CPU is roughly 15–45 W under load.</small>
+      </div>
+      <div class="ctl">
+        <label for="tm">Time for one answer <output id="tmO"></output></label>
+        <input id="tm" type="range" min="1" max="600" step="1" value="11">
+        <small>Up to 600 s, long enough for a "thinking" answer.</small>
+      </div>
+      <div class="ctl">
+        <label for="gi">Grid intensity <output id="giO"></output></label>
+        <input id="gi" type="range" min="0" max="800" step="1" value="169">
+        <div class="presets">
+          <button class="preset" type="button" data-gi="169">Austria · 169</button>
+          <button class="preset" type="button" data-gi="0">Carbon-free · 0</button>
+          <button class="preset" type="button" data-gi="400">Coal-heavy · 400</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label for="qd">Answers per day <output id="qdO"></output></label>
+        <input id="qd" type="range" min="1" max="1000" step="1" value="50">
+      </div>
+    </div>
+    <div class="results" aria-live="polite">
+      <div class="res"><div class="k">Energy for one answer</div><div class="v" id="rWh"></div></div>
+      <div class="res main"><div class="k">CO₂ for one answer</div><div class="v" id="rG"></div></div>
+      <div class="res"><div class="k">Same energy as a 10 W LED bulb for</div><div class="v" id="rLed"></div></div>
+      <div class="res"><div class="k">CO₂ per day at this rate</div><div class="v" id="rDay"></div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>My measured times:</b> short answer about 11 s, a full "thinking" answer about 777 s (13 min), on a laptop with Ollama and Qwen3.5 4B. The power is an assumption, so the energy is a range in the slides.
+  </div>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var pw = $("pw"), tm = $("tm"), gi = $("gi"), qd = $("qd");
+  function fmt(x) {
+    if (x === 0) return "0";
+    if (x >= 100) return x.toFixed(0);
+    if (x >= 10) return x.toFixed(1);
+    if (x >= 1) return x.toFixed(2);
+    if (x >= 0.01) return x.toFixed(3);
+    return x.toFixed(4);
+  }
+  function ledText(wh) {
+    var s = wh / 10 * 3600;
+    if (s < 1) return "<1 s";
+    if (s < 120) return Math.round(s) + " s";
+    if (s < 7200) return (s / 60).toFixed(1) + " min";
+    return (s / 3600).toFixed(1) + " h";
+  }
+  function render() {
+    var P = +pw.value, T = +tm.value, G = +gi.value, Q = +qd.value;
+    $("pwO").textContent = P + " W";
+    $("tmO").textContent = T + " s";
+    $("giO").textContent = G + " g/kWh";
+    $("qdO").textContent = Q;
+    var wh = P * T / 3600;
+    var g = wh / 1000 * G;
+    $("rWh").innerHTML = fmt(wh) + " <small>Wh</small>";
+    $("rG").innerHTML = fmt(g) + " <small>g CO₂</small>";
+    $("rLed").textContent = ledText(wh);
+    $("rDay").innerHTML = fmt(g * Q) + " <small>g CO₂</small>";
+  }
+  [pw, tm, gi, qd].forEach(function (el) { el.addEventListener("input", render); });
+  document.querySelectorAll("button.preset").forEach(function (b) {
+    b.addEventListener("click", function () { gi.value = b.getAttribute("data-gi"); render(); });
+  });
+  render();
+})();
+</script>

@@ -1,0 +1,29 @@
+{
+  "when": "2026-11-19T11:03:25",
+  "model": "qwen3.5:4b",
+  "assumptions": {
+    "power_low_W": 15,
+    "power_high_W": 45,
+    "grid_g_per_kWh": 169
+  },
+  "results": {
+    "no_thinking": {
+      "time_s": 16.0,
+      "tokens": 87,
+      "wh_low": 0.067,
+      "wh_high": 0.2,
+      "g_low": 0.0113,
+      "g_high": 0.0338,
+      "capped": false
+    },
+    "thinking": {
+      "time_s": 48.5,
+      "tokens": 300,
+      "wh_low": 0.202,
+      "wh_high": 0.607,
+      "g_low": 0.0342,
+      "g_high": 0.1026,
+      "capped": true
+    }
+  }
+}

@@ -12,7 +12,7 @@ were written with help from AI (Claude); all measurements were run by me.
   runs the question, computes energy and CO₂).
 - `measurements.json` — the numbers it saved on my laptop.
 - `calculator.html` — a standalone slider calculator (open it in any browser).
-- `slides.pdf` — the slide deck.
+- `What a Chat Costs in CO2.pptx` — the slide deck.
 
 ## The question
 
